@@ -10,7 +10,7 @@ function App() {
       .then((data) => setMessage(data.message));
   }, []);
 
-  return <p>{message}</p>;
+  return <p className="p-5 text-2xl tracking-wider font-bold">{message}</p>;
 }
 
 export default App;
