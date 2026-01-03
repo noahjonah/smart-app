@@ -14,7 +14,7 @@ function App() {
    return (
       <div className="p-5 space-y-2">
          <p className="text-2xl tracking-wider font-bold">{message}</p>
-         <Button>Click ShadCN</Button>
+         <Button>ShadCN</Button>
       </div>
    );
 }
