@@ -1,0 +1,16 @@
+# All files that should be ignored by Prettier on formatting the project
+node_modules/
+dist/
+build/
+*.lock
+bun.lock
+
+*.min.js
+*.bundle.js
+coverage/
+.vscode/
+.DS_Store
+.idea/
+*.log
+.env
+.env.local
