@@ -16,23 +16,22 @@ const app = express();
 app.use(express.json()); // Allows the parsing of JSON bodies in the requests
 const port = process.env.PORT || 3000;
 
-let lastPromptId: string | null;
+const conversations = new Map<string, string>();
 
 app.post('/api/chat', async (request: Request, response: Response) => {
-   const { prompt } = request.body;
+   const { prompt, conversationId } = request.body;
 
-   const chatCompletion = await client.responses.create({
+   const chatReply = await client.responses.create({
       model: 'openai/gpt-oss-120b:fireworks-ai',
       input: prompt,
-      max_output_tokens: 200,
+      max_output_tokens: 100,
       temperature: 0.2,
-      previous_response_id: lastPromptId,
+      previous_response_id: conversations.get(conversationId),
    });
 
-   lastPromptId = chatCompletion.id;
-   // const content_answer = chatCompletion.choices[0]?.message?.content ?? '';
+   conversations.set(conversationId, chatReply.id);
 
-   response.json({ response: chatCompletion.output_text });
+   response.json({ ai_response: chatReply.output_text });
 });
 
 app.get('/api/hello', (req: Request, res: Response) => {
