@@ -16,19 +16,23 @@ const app = express();
 app.use(express.json()); // Allows the parsing of JSON bodies in the requests
 const port = process.env.PORT || 3000;
 
+let lastPromptId: string | null;
+
 app.post('/api/chat', async (request: Request, response: Response) => {
    const { prompt } = request.body;
 
-   const chatCompletion = await client.chat.completions.create({
-      model: 'meta-llama/Llama-3.1-8B-Instruct:cerebras',
-      messages: [{ role: 'user', content: prompt }],
+   const chatCompletion = await client.responses.create({
+      model: 'openai/gpt-oss-120b:fireworks-ai',
+      input: prompt,
+      max_output_tokens: 200,
       temperature: 0.2,
-      max_tokens: 512,
+      previous_response_id: lastPromptId,
    });
 
-   const content_answer = chatCompletion.choices[0]?.message?.content ?? '';
+   lastPromptId = chatCompletion.id;
+   // const content_answer = chatCompletion.choices[0]?.message?.content ?? '';
 
-   response.json({ response: content_answer });
+   response.json({ response: chatCompletion.output_text });
 });
 
 app.get('/api/hello', (req: Request, res: Response) => {
