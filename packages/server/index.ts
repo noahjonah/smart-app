@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import type { Request, Response } from 'express';
 import { OpenAI } from 'openai';
 import z from 'zod';
+import { conversationRepository } from './repositories/conversation.repository';
 
 dotenv.config();
 
@@ -16,8 +17,6 @@ const client = new OpenAI({
 const app = express();
 app.use(express.json()); // Allows the parsing of JSON bodies in the requests
 const port = process.env.PORT || 3000;
-
-const conversations = new Map<string, string>();
 
 const chatRequestSchema = z.object({
    prompt: z
@@ -37,16 +36,16 @@ app.post('/api/chat', async (request: Request, response: Response) => {
 
    try {
       const { prompt, conversationId } = request.body;
-
       const chatReply = await client.responses.create({
          model: 'openai/gpt-oss-120b:fireworks-ai',
          input: prompt,
          max_output_tokens: 100,
          temperature: 0.2,
-         previous_response_id: conversations.get(conversationId),
+         previous_response_id:
+            conversationRepository.getLastResponseId(conversationId),
       });
 
-      conversations.set(conversationId, chatReply.id);
+      conversationRepository.setLastResponseId(conversationId, chatReply.id);
 
       response.json({ ai_response: chatReply.output_text });
    } catch (error) {
