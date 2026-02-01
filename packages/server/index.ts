@@ -35,19 +35,25 @@ app.post('/api/chat', async (request: Request, response: Response) => {
       return response.status(400).json({ errors: parseResult.error.format() });
    }
 
-   const { prompt, conversationId } = request.body;
+   try {
+      const { prompt, conversationId } = request.body;
 
-   const chatReply = await client.responses.create({
-      model: 'openai/gpt-oss-120b:fireworks-ai',
-      input: prompt,
-      max_output_tokens: 100,
-      temperature: 0.2,
-      previous_response_id: conversations.get(conversationId),
-   });
+      const chatReply = await client.responses.create({
+         model: 'openai/gpt-oss-120b:fireworks-ai',
+         input: prompt,
+         max_output_tokens: 100,
+         temperature: 0.2,
+         previous_response_id: conversations.get(conversationId),
+      });
 
-   conversations.set(conversationId, chatReply.id);
+      conversations.set(conversationId, chatReply.id);
 
-   response.json({ ai_response: chatReply.output_text });
+      response.json({ ai_response: chatReply.output_text });
+   } catch (error) {
+      response
+         .status(500)
+         .json({ error: 'An error occurred while processing your request.' });
+   }
 });
 
 app.get('/api/hello', (req: Request, res: Response) => {
